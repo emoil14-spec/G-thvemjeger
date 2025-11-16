@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gæt Dyret</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    #app {
+      max-width: 640px;
+      margin: 0 auto 2rem auto;
+      padding: 1rem;
+    }
+    .topbar {
+      background: #2563eb;
+      color: white;
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .topbar-emoji {
+      font-size: 1.6rem;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin-top: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+    h1 {
+      font-size: 1.6rem;
+    }
+    h2 {
+      font-size: 1.3rem;
+    }
+    .hidden {
+      display: none;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-top: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #e5e7eb;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 1.3rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 1.05rem;
+      margin: 0.25rem 0.25rem;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      min-width: 140px;
+      text-align: center;
+      font-weight: 600;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
+    }
+    .btn:hover {
+      background: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    .btn.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .btn.secondary:hover {
+      background: #d1d5db;
+    }
+    .btn-block {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      background: #f9fafb;
+    }
+    .player-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: #fee2e2;
+      margin: 0.2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .pill-remove {
+      margin-left: 0.4rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .section-title {
+      font-weight: 700;
+      margin-top: 0.6rem;
+      margin-bottom: 0.25rem;
+      font-size: 1rem;
+    }
+    .center {
+      text-align: center;
+    }
+    p {
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+    }
+    .chip {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+      cursor: pointer;
+      user-select: none;
+      background: #ffffff;
+    }
+    .chip.selected {
+      background: #f97316;
+      color: white;
+      border-color: #ea580c;
+      font-weight: 600;
+    }
+    .big-word {
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-align: center;
+      margin: 0.4rem 0;
+    }
+    .small-label {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin: 0;
+    }
+    #guessVisual {
+      font-size: 3.4rem;
+      margin-bottom: 0.1rem;
+    }
+    .hint-list {
+      list-style: disc;
+      padding-left: 1.5rem;
+      font-size: 1rem;
+    }
+    .round-info {
+      text-align: center;
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .timer-display {
+      font-weight: bold;
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 1rem;
+    }
+    .score-row:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-emoji">🐾</span>
+  <span class="topbar-title">Gæt Dyret</span>
+</div>
+
+<div id="app">
+  <!-- SETUP SCREEN -->
+  <section id="setupScreen" class="card">
+    <h1>Gæt Dyret</h1>
+    <p class="center">Et lille familiespil til iPad og telefon 🐶🦁🐸</p>
+
+    <div class="section-title">1. Spillere</div>
+    <div>
+      <input type="text" id="playerNameInput" placeholder="Skriv navn og tryk på knappen">
+      <button class="btn" id="addPlayerBtn">Tilføj spiller</button>
+    </div>
+    <div id="playerList"></div>
+
+    <div class="section-title">2. Sværhedsgrad</div>
+    <select id="difficultySelect">
+      <option value="easy">Nem – meget kendte dyr (kat, hund, ko...)</option>
+      <option value="medium">Mellem – flere dyr (løve, giraf...)</option>
+      <option value="hard">Svær – alle dyr (også havdyr, insekter)</option>
+    </select>
+
+    <div class="section-title">3. Antal runder</div>
+    <div class="chips" id="roundPresetChips">
+      <div class="chip" data-rounds="3">3 runder (kort)</div>
+      <div class="chip" data-rounds="5">5 runder (normal)</div>
+      <div class="chip" data-rounds="10">10 runder (langt)</div>
+    </div>
+    <input type="number" id="customRoundsInput" min="1" placeholder="Eller skriv selv antal runder">
+
+    <div class="section-title">4. Timer (valgfri)</div>
+    <label style="font-size:0.95rem;">
+      <input type="checkbox" id="enableTimerCheckbox">
+      Slå timer til
+    </label>
+    <input type="number" id="timerSecondsInput" min="10" step="5" placeholder="Sekunder pr. runde (fx 60)">
+
+    <div class="center" style="margin-top:1rem;">
+      <button class="btn btn-block" id="startGameBtn">Start spil</button>
+    </div>
+  </section>
+
+  <!-- TURN SCREEN -->
+  <section id="turnScreen" class="card hidden">
+    <div class="round-info" id="roundInfo"></div>
+    <h2 id="currentPlayerHeading"></h2>
+    <p class="center">Giv iPad'en til spilleren. Når du er klar:</p>
+    <div class="center">
+      <button class="btn btn-block" id="showSecretBtn">Se hvilket dyr du er</button>
+    </div>
+  </section>
+
+  <!-- SECRET SCREEN -->
+  <section id="secretScreen" class="card hidden">
+    <h2>Hemmeligt dyr</h2>
+    <p class="center">Kun spilleren må se denne skærm!</p>
+    <div class="big-word" id="secretWord"></div>
+    <p class="center">Kategori: Dyr</p>
+    <div class="center" style="margin-top:0.5rem;">
+      <button class="btn btn-block" id="readyToGuessBtn">Jeg er klar – de andre må gætte!</button>
+    </div>
+  </section>
+
+  <!-- GUESS SCREEN -->
+  <section id="guessScreen" class="card hidden">
+    <div class="round-info" id="guessRoundInfo"></div>
+    <h2 id="guessPlayerHeading"></h2>
+
+    <div class="center">
+      <p class="small-label">Du er:</p>
+      <div id="guessVisual"></div>
+      <div class="big-word" id="guessSecretWord"></div>
+    </div>
+
+    <p>De andre spillere stiller ja/nej-spørgsmål for at gætte, hvilket dyr du er.</p>
+
+    <div id="timerContainer" class="timer-display hidden">
+      Tid tilbage: <span id="timerDisplay"></span> sek.
+    </div>
+
+    <div class="section-title">Hints</div>
+    <p id="hintInfoText">Hints kommer automatisk. Hvert hint koster 1 point for gætteren.</p>
+    <ul id="hintList" class="hint-list"></ul>
+
+    <div class="center" style="margin-top:1rem;">
+      <button class="btn" id="manualHintBtn">Giv hint nu</button>
+      <button class="btn secondary" id="noGuessBtn">Ingen kunne gætte</button>
+      <button class="btn" id="correctGuessBtn">Rigtigt gættet</button>
+    </div>
+  </section>
+
+  <!-- WHO GUESSED SCREEN -->
+  <section id="whoGuessedScreen" class="card hidden">
+    <h2>Hvem gættede rigtigt?</h2>
+    <p id="whoGuessedWordInfo"></p>
+    <p>Vælg spilleren, der gættede rigtigt:</p>
+    <div id="guesserButtons"></div>
+    <div class="center" style="margin-top:1rem;">
+      <button class="btn secondary" id="nobodyGuessedBtn">Ingen gættede alligevel</button>
+    </div>
+  </section>
+
+  <!-- END SCREEN -->
+  <section id="endScreen" class="card hidden">
+    <h2>Spillet er slut</h2>
+    <h3 id="winnerHeading"></h3>
+    <div class="section-title">Pointtavle</div>
+    <div id="scoreboard"></div>
+    <div class="center" style="margin-top:1rem;">
+      <button class="btn btn-block" id="restartBtn">Start nyt spil</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  // --- DATA: DYR & HINTS (samme som før) ---
+  var ITEMS = [
+    // EASY
+    { name: "Kat", emoji: "🐱", difficulty: "easy",
+      hints: ["Jeg kan sige miav", "Jeg spinder", "Jeg er et kæledyr"] },
+    { name: "Hund", emoji: "🐶", difficulty: "easy",
+      hints: ["Jeg kan gø", "Jeg elsker at gå tur", "Jeg er menneskets bedste ven"] },
+    { name: "Ko", emoji: "🐄", difficulty: "easy",
+      hints: ["Jeg bor på en gård", "Jeg kan sige muh", "Man kan få mælk fra mig"] },
+    { name: "Hest", emoji: "🐴", difficulty: "easy",
+      hints: ["Man kan ride på mig", "Jeg er større end en hund", "Jeg siger pruh"] },
+    { name: "Pony", emoji: "🐴", difficulty: "easy",
+      hints: ["Jeg ligner en lille hest", "Børn kan ride på mig", "Jeg bor tit på en gård"] },
+    { name: "Gris", emoji: "🐷", difficulty: "easy",
+      hints: ["Jeg bor på en gård", "Jeg kan sige øf", "Jeg er ofte lyserød"] },
+    { name: "Får", emoji: "🐑", difficulty: "easy",
+      hints: ["Jeg har uld", "Jeg siger mæh", "Jeg bor ofte på en mark"] },
+    { name: "Ged", emoji: "🐐", difficulty: "easy",
+      hints: ["Jeg kan klatre", "Jeg har horn", "Jeg siger mæh/beh"] },
+    { name: "Kanin", emoji: "🐰", difficulty: "easy",
+      hints: ["Jeg har lange ører", "Jeg hopper", "Jeg elsker gulerødder"] },
+    { name: "Hamster", emoji: "🐹", difficulty: "easy",
+      hints: ["Jeg er lille", "Jeg kan løbe i et hjul", "Jeg er et kæledyr"] },
+    { name: "Marsvin", emoji: "🐹", difficulty: "easy",
+      hints: ["Jeg er et lille kæledyr", "Jeg piber", "Jeg har kort hale"] },
+    { name: "Mus", emoji: "🐭", difficulty: "easy",
+      hints: ["Jeg er meget lille", "Jeg kan lide ost", "Nogle bliver bange for mig"] },
+    { name: "Fugl", emoji: "🐦", difficulty: "easy",
+      hints: ["Jeg har fjer", "Jeg kan flyve", "Jeg lægger æg"] },
+    { name: "And", emoji: "🦆", difficulty: "easy",
+      hints: ["Jeg bor ofte ved vandet", "Jeg siger rap", "Jeg har næb"] },
+    { name: "Kylling", emoji: "🐤", difficulty: "easy",
+      hints: ["Jeg er en baby-fugl", "Jeg kommer fra et æg", "Jeg siger pip"] },
+    { name: "Fisk", emoji: "🐟", difficulty: "easy",
+      hints: ["Jeg bor i vandet", "Jeg har finner", "Jeg kan ikke trække vejret på land"] },
+    { name: "Guldfisk", emoji: "🐟", difficulty: "easy",
+      hints: ["Jeg er et kæledyr i et akvarium", "Jeg er lille og orange", "Jeg bor i vand"] },
+    { name: "Pingvin", emoji: "🐧", difficulty: "easy",
+      hints: ["Jeg kan ikke flyve", "Jeg bor et meget koldt sted", "Jeg går sjovt"] },
+    { name: "Ulve-hund", emoji: "🐺", difficulty: "easy",
+      hints: ["Jeg ligner en stor hund", "Jeg kan hyle", "Jeg lever i flok"] },
+    { name: "Sæl", emoji: "🦭", difficulty: "easy",
+      hints: ["Jeg bor ved havet", "Jeg kan klappe med mine luffer", "Jeg er god til at svømme"] },
+    { name: "Papegøje", emoji: "🦜", difficulty: "easy",
+      hints: ["Jeg kan flyve", "Jeg kan nogle gange sige ord", "Jeg har farverige fjer"] },
+
+    // MEDIUM
+    { name: "Løve", emoji: "🦁", difficulty: "medium",
+      hints: ["Jeg er junglens konge", "Jeg brøler", "Jeg ligner en stor kat"] },
+    { name: "Tiger", emoji: "🐯", difficulty: "medium",
+      hints: ["Jeg har striber", "Jeg er en stor kat", "Jeg bor i junglen"] },
+    { name: "Bjørn", emoji: "🐻", difficulty: "medium",
+      hints: ["Jeg er stor", "Jeg kan sove hele vinteren", "Jeg kan godt lide honning"] },
+    { name: "Isbjørn", emoji: "🐻‍❄️", difficulty: "medium",
+      hints: ["Jeg er hvid", "Jeg bor hvor der er meget koldt", "Jeg er en stor bjørn"] },
+    { name: "Panda", emoji: "🐼", difficulty: "medium",
+      hints: ["Jeg er sort og hvid", "Jeg spiser bambus", "Jeg ligner en stor bjørn"] },
+    { name: "Ræv", emoji: "🦊", difficulty: "medium",
+      hints: ["Jeg har en busket hale", "Jeg kan snige mig rundt", "Jeg er rød eller orange"] },
+    { name: "Abe", emoji: "🐵", difficulty: "medium",
+      hints: ["Jeg kan klatre i træer", "Jeg ligner lidt et menneske", "Jeg elsker bananer"] },
+    { name: "Gorilla", emoji: "🦍", difficulty: "medium",
+      hints: ["Jeg er stor og stærk", "Jeg ligner et menneske", "Jeg bor tit i junglen"] },
+    { name: "Elefant", emoji: "🐘", difficulty: "medium",
+      hints: ["Jeg er meget stor", "Jeg har snabel", "Jeg bor tit i Afrika"] },
+    { name: "Giraf", emoji: "🦒", difficulty: "medium",
+      hints: ["Jeg har meget lang hals", "Jeg er meget høj", "Jeg har pletter"] },
+    { name: "Flodhest", emoji: "🦛", difficulty: "medium",
+      hints: ["Jeg er meget tung", "Jeg bor tit i vandet", "Jeg har stor mund"] },
+    { name: "Næsehorn", emoji: "🦏", difficulty: "medium",
+      hints: ["Jeg har horn på næsen", "Jeg er meget tung", "Jeg ligner lidt en grå tank"] },
+    { name: "Krokodille", emoji: "🐊", difficulty: "medium",
+      hints: ["Jeg bor i vand og på land", "Jeg har mange tænder", "Jeg ligner en stor øgle"] },
+    { name: "Skildpadde", emoji: "🐢", difficulty: "medium",
+      hints: ["Jeg har skal på ryggen", "Jeg går langsomt", "Jeg kan leve meget længe"] },
+    { name: "Frø", emoji: "🐸", difficulty: "medium",
+      hints: ["Jeg kan hoppe", "Jeg siger kvæk", "Jeg bor tit ved vandet"] },
+    { name: "Ugle", emoji: "🦉", difficulty: "medium",
+      hints: ["Jeg er vågen om natten", "Jeg kan dreje hovedet meget", "Jeg siger uhu"] },
+    { name: "Egern", emoji: "🐿️", difficulty: "medium",
+      hints: ["Jeg bor i træer", "Jeg har busket hale", "Jeg kan godt lide nødder"] },
+    { name: "Rensdyr", emoji: "🦌", difficulty: "medium",
+      hints: ["Jeg har gevir", "Jeg bor hvor det kan være koldt", "Nogle siger, jeg hjælper julemanden"] },
+    { name: "Kamel", emoji: "🐪", difficulty: "medium",
+      hints: ["Jeg kan gå i ørkenen", "Jeg har én eller to pukler", "Jeg kan gå længe uden vand"] },
+    { name: "Æsel", emoji: "🐴", difficulty: "medium",
+      hints: ["Jeg ligner en lille hest", "Jeg kan sige ih-ah", "Jeg er stærk og kan bære ting"] },
+    { name: "Zebra", emoji: "🦓", difficulty: "medium",
+      hints: ["Jeg har striber", "Jeg ligner lidt en hest", "Jeg bor i Afrika"] },
+    { name: "Koala", emoji: "🐨", difficulty: "medium",
+      hints: ["Jeg bor i træer", "Jeg bor i Australien", "Jeg sover meget"] },
+
+    // HARD
+    { name: "Delfin", emoji: "🐬", difficulty: "hard",
+      hints: ["Jeg bor i havet", "Jeg er meget klog", "Jeg ligner lidt en fisk, men er det ikke"] },
+    { name: "Hval", emoji: "🐳", difficulty: "hard",
+      hints: ["Jeg er meget stor", "Jeg bor i havet", "Jeg sprøjter vand op i luften"] },
+    { name: "Haj", emoji: "🦈", difficulty: "hard",
+      hints: ["Jeg bor i havet", "Jeg har mange skarpe tænder", "Nogle er bange for mig"] },
+    { name: "Blæksprutte", emoji: "🐙", difficulty: "hard",
+      hints: ["Jeg bor i havet", "Jeg har mange arme", "Jeg kan sprøjte blæk"] },
+    { name: "Blæksprutte-lignende dyr", emoji: "🦑", difficulty: "hard",
+      hints: ["Jeg bor i havet", "Jeg har arme/tentakler", "Jeg ligner en blæksprutte"] },
+    { name: "Krabbe", emoji: "🦀", difficulty: "hard",
+      hints: ["Jeg bor ved havet", "Jeg går lidt sidelæns", "Jeg har kløer"] },
+    { name: "Søhest", emoji: "🐠", difficulty: "hard",
+      hints: ["Jeg bor i havet", "Jeg ligner et lille hest-hoved", "Jeg er meget lille"] },
+    { name: "Pelikan", emoji: "🦩", difficulty: "hard",
+      hints: ["Jeg kan flyve", "Jeg har stor næb-pose", "Jeg kan fange fisk"] },
+    { name: "Sommerfugl", emoji: "🦋", difficulty: "hard",
+      hints: ["Jeg kan flyve", "Jeg har farverige vinger", "Jeg var engang en larve"] },
+    { name: "Bi", emoji: "🐝", difficulty: "hard",
+      hints: ["Jeg kan flyve", "Jeg kan stikke", "Jeg laver honning"] },
+    { name: "Mariehøne", emoji: "🐞", difficulty: "hard",
+      hints: ["Jeg er lille", "Jeg er rød med sorte prikker", "Jeg er en bille"] },
+    { name: "Slange", emoji: "🐍", difficulty: "hard",
+      hints: ["Jeg har ingen ben", "Jeg kan sno mig", "Nogle af mig kan være giftige"] }
+  ];
+
+  // SPIL-TILSTAND
+  var gameState = {
+    players: [],
+    difficulty: "easy",
+    totalRounds: 0,
+    currentRound: 1,
+    currentPlayerIndex: 0,
+    enableTimer: false,
+    timerSeconds: 60,
+    timeLeft: 0,
+    timerIntervalId: null,
+    hintIntervalId: null,
+    hintIntervalMs: 10000,
+    availableItems: [],
+    currentItem: null,
+    hintsUsed: 0,
+    revealedHints: []
+  };
+
+  var screens = {
+    setup: document.getElementById("setupScreen"),
+    turn: document.getElementById("turnScreen"),
+    secret: document.getElementById("secretScreen"),
+    guess: document.getElementById("guessScreen"),
+    whoGuessed: document.getElementById("whoGuessedScreen"),
+    end: document.getElementById("endScreen")
+  };
+
+  function showScreen(name) {
+    for (var key in screens) {
+      if (screens.hasOwnProperty(key)) {
+        screens[key].classList.add("hidden");
+      }
+    }
+    screens[name].classList.remove("hidden");
+  }
+
+  function renderPlayers() {
+    var container = document.getElementById("playerList");
+    container.innerHTML = "";
+    gameState.players.forEach(function(p, index) {
+      var div = document.createElement("div");
+      div.className = "player-pill";
+      div.textContent = p.name;
+
+      var span = document.createElement("span");
+      span.className = "pill-remove";
+      span.textContent = "×";
+      span.onclick = function() {
+        gameState.players.splice(index, 1);
+        renderPlayers();
+      };
+
+      div.appendChild(span);
+      container.appendChild(div);
+    });
+  }
+
+  function getSelectedRounds() {
+    var custom = parseInt(document.getElementById("customRoundsInput").value, 10);
+    if (!isNaN(custom) && custom > 0) return custom;
+
+    var selectedChip = document.querySelector("#roundPresetChips .chip.selected");
+    if (selectedChip) {
+      var r = parseInt(selectedChip.getAttribute("data-rounds"), 10);
+      if (!isNaN(r) && r > 0) return r;
+    }
+    return 0;
+  }
+
+  function calculateHintIntervalMs() {
+    if (gameState.difficulty === "easy") return 10000;
+    if (gameState.difficulty === "medium") return 20000;
+    return 30000;
+  }
+
+  function filterAvailableItems() {
+    gameState.availableItems = ITEMS.filter(function(item) {
+      if (gameState.difficulty === "easy") return item.difficulty === "easy";
+      if (gameState.difficulty === "medium") return item.difficulty === "easy" || item.difficulty === "medium";
+      return true;
+    });
+  }
+
+  function pickRandomItem() {
+    if (gameState.availableItems.length === 0) {
+      filterAvailableItems();
+    }
+    var arr = gameState.availableItems;
+    var index = Math.floor(Math.random() * arr.length);
+    return arr[index];
+  }
+
+  function resetTimers() {
+    if (gameState.timerIntervalId) {
+      clearInterval(gameState.timerIntervalId);
+      gameState.timerIntervalId = null;
+    }
+    if (gameState.hintIntervalId) {
+      clearInterval(gameState.hintIntervalId);
+      gameState.hintIntervalId = null;
+    }
+  }
+
+  function startGame() {
+    if (gameState.players.length < 2) {
+      alert("Der skal mindst være 2 spillere.");
+      return;
+    }
+
+    gameState.totalRounds = getSelectedRounds();
+    if (gameState.totalRounds <= 0) {
+      alert("Vælg eller skriv antal runder.");
+      return;
+    }
+
+    gameState.difficulty = document.getElementById("difficultySelect").value;
+    filterAvailableItems();
+
+    if (gameState.availableItems.length === 0) {
+      alert("Ingen dyr passer til den sværhedsgrad. Prøv en anden.");
+      return;
+    }
+
+    var enableTimer = document.getElementById("enableTimerCheckbox").checked;
+    gameState.enableTimer = enableTimer;
+    if (enableTimer) {
+      var sec = parseInt(document.getElementById("timerSecondsInput").value, 10);
+      if (isNaN(sec) || sec <= 0) {
+        alert("Skriv antal sekunder til timeren (fx 60).");
+        return;
+      }
+      gameState.timerSeconds = sec;
+    }
+
+    gameState.players.forEach(function(p) { p.score = 0; });
+    gameState.currentRound = 1;
+    gameState.currentPlayerIndex = 0;
+    resetTimers();
+
+    startTurn();
+  }
+
+  function startTurn() {
+    if (gameState.currentRound > gameState.totalRounds) {
+      endGame();
+      return;
+    }
+
+    var player = gameState.players[gameState.currentPlayerIndex];
+    document.getElementById("roundInfo").textContent =
+      "Runde " + gameState.currentRound + " af " + gameState.totalRounds;
+    document.getElementById("currentPlayerHeading").textContent =
+      "Det er " + player.name + "s tur";
+
+    showScreen("turn");
+  }
+
+  function showSecret() {
+    var item = pickRandomItem();
+    gameState.currentItem = item;
+    gameState.hintsUsed = 0;
+    gameState.revealedHints = [];
+
+    document.getElementById("secretWord").textContent = item.emoji + " " + item.name;
+
+    showScreen("secret");
+  }
+
+  function startGuessPhase() {
+    resetTimers();
+    var player = gameState.players[gameState.currentPlayerIndex];
+
+    document.getElementById("guessRoundInfo").textContent =
+      "Runde " + gameState.currentRound + " af " + gameState.totalRounds;
+    document.getElementById("guessPlayerHeading").textContent =
+      player.name + " er dyret. De andre gætter.";
+
+    if (gameState.currentItem) {
+      document.getElementById("guessSecretWord").textContent = gameState.currentItem.name;
+      document.getElementById("guessVisual").textContent = gameState.currentItem.emoji || "";
+    } else {
+      document.getElementById("guessSecretWord").textContent = "";
+      document.getElementById("guessVisual").textContent = "";
+    }
+
+    gameState.revealedHints = [];
+    gameState.hintsUsed = 0;
+    renderHints();
+
+    gameState.hintIntervalMs = calculateHintIntervalMs();
+    gameState.hintIntervalId = setInterval(function() {
+      revealNextHint();
+    }, gameState.hintIntervalMs);
+
+    var timerContainer = document.getElementById("timerContainer");
+    if (gameState.enableTimer) {
+      timerContainer.classList.remove("hidden");
+      gameState.timeLeft = gameState.timerSeconds;
+      document.getElementById("timerDisplay").textContent = gameState.timeLeft;
+      gameState.timerIntervalId = setInterval(function() {
+        gameState.timeLeft -= 1;
+        document.getElementById("timerDisplay").textContent = gameState.timeLeft;
+        if (gameState.timeLeft <= 0) {
+          handleNoGuess(true);
+        }
+      }, 1000);
+    } else {
+      timerContainer.classList.add("hidden");
+    }
+
+    showScreen("guess");
+  }
+
+  function renderHints() {
+    var ul = document.getElementById("hintList");
+    ul.innerHTML = "";
+    gameState.revealedHints.forEach(function(h) {
+      var li = document.createElement("li");
+      li.textContent = h;
+      ul.appendChild(li);
+    });
+  }
+
+  function revealNextHint(manual) {
+    var item = gameState.currentItem;
+    if (!item || !item.hints || gameState.revealedHints.length >= item.hints.length) {
+      return;
+    }
+    gameState.revealedHints.push(item.hints[gameState.revealedHints.length]);
+    gameState.hintsUsed += 1;
+    renderHints();
+  }
+
+  function handleNoGuess(timeout) {
+    resetTimers();
+    advanceTurn();
+  }
+
+  function handleCorrectGuess() {
+    resetTimers();
+    var wordInfo = document.getElementById("whoGuessedWordInfo");
+    wordInfo.textContent =
+      "Det hemmelige dyr var: \"" + gameState.currentItem.name + "\". " +
+      "Der blev brugt " + gameState.hintsUsed + " hint(s).";
+
+    var container = document.getElementById("guesserButtons");
+    container.innerHTML = "";
+    gameState.players.forEach(function(p, index) {
+      if (index === gameState.currentPlayerIndex) return;
+      var btn = document.createElement("button");
+      btn.className = "btn btn-block";
+      btn.textContent = p.name;
+      btn.onclick = function() {
+        awardPoints(index, true);
+      };
+      container.appendChild(btn);
+    });
+
+    showScreen("whoGuessed");
+  }
+
+  var BASE_POINTS = 3;
+
+  function awardPoints(guesserIndex, guessed) {
+    var secretIndex = gameState.currentPlayerIndex;
+
+    if (guessed && guesserIndex != null) {
+      var guesserPoints = BASE_POINTS - gameState.hintsUsed;
+      if (guesserPoints < 0) guesserPoints = 0;
+
+      gameState.players[guesserIndex].score =
+        (gameState.players[guesserIndex].score || 0) + guesserPoints;
+
+      gameState.players[secretIndex].score =
+        (gameState.players[secretIndex].score || 0) + 1;
+    }
+
+    advanceTurn();
+  }
+
+  function advanceTurn() {
+    gameState.currentPlayerIndex += 1;
+    if (gameState.currentPlayerIndex >= gameState.players.length) {
+      gameState.currentPlayerIndex = 0;
+      gameState.currentRound += 1;
+    }
+
+    if (gameState.currentRound > gameState.totalRounds) {
+      endGame();
+    } else {
+      startTurn();
+    }
+  }
+
+  function endGame() {
+    resetTimers();
+
+    var winner = null;
+    gameState.players.forEach(function(p) {
+      if (!winner || (p.score || 0) > (winner.score || 0)) {
+        winner = p;
+      }
+    });
+
+    var winnerHeading = document.getElementById("winnerHeading");
+    if (winner) {
+      winnerHeading.textContent =
+        "Vinderen er " + winner.name + " med " + (winner.score || 0) + " point!";
+    } else {
+      winnerHeading.textContent = "Spillet er slut.";
+    }
+
+    var scoreboard = document.getElementById("scoreboard");
+    scoreboard.innerHTML = "";
+    var sorted = gameState.players.slice().sort(function(a, b) {
+      return (b.score || 0) - (a.score || 0);
+    });
+    sorted.forEach(function(p) {
+      var row = document.createElement("div");
+      row.className = "score-row";
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = p.name;
+      var scoreSpan = document.createElement("span");
+      scoreSpan.textContent = (p.score || 0) + " point";
+      row.appendChild(nameSpan);
+      row.appendChild(scoreSpan);
+      scoreboard.appendChild(row);
+    });
+
+    showScreen("end");
+  }
+
+  function restartGame() {
+    gameState.currentRound = 1;
+    gameState.currentPlayerIndex = 0;
+    resetTimers();
+    showScreen("setup");
+  }
+
+  // EVENT-LISTENERS (uden arrow functions)
+  document.getElementById("addPlayerBtn").addEventListener("click", function() {
+    var input = document.getElementById("playerNameInput");
+    var name = input.value.trim();
+    if (!name) return;
+    gameState.players.push({ name: name, score: 0 });
+    input.value = "";
+    renderPlayers();
+  });
+
+  document.getElementById("playerNameInput").addEventListener("keyup", function(e) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      document.getElementById("addPlayerBtn").click();
+    }
+  });
+
+  var roundChips = document.querySelectorAll("#roundPresetChips .chip");
+  for (var i = 0; i < roundChips.length; i++) {
+    roundChips[i].addEventListener("click", (function(chip) {
+      return function() {
+        for (var j = 0; j < roundChips.length; j++) {
+          roundChips[j].classList.remove("selected");
+        }
+        chip.classList.add("selected");
+        document.getElementById("customRoundsInput").value = "";
+      };
+    })(roundChips[i]));
+  }
+
+  document.getElementById("startGameBtn").addEventListener("click", startGame);
+  document.getElementById("showSecretBtn").addEventListener("click", showSecret);
+  document.getElementById("readyToGuessBtn").addEventListener("click", startGuessPhase);
+  document.getElementById("manualHintBtn").addEventListener("click", function() { revealNextHint(true); });
+  document.getElementById("noGuessBtn").addEventListener("click", function() { handleNoGuess(false); });
+  document.getElementById("correctGuessBtn").addEventListener("click", handleCorrectGuess);
+  document.getElementById("nobodyGuessedBtn").addEventListener("click", function() { advanceTurn(); });
+  document.getElementById("restartBtn").addEventListener("click", restartGame);
+
+  // Start på setup
+  showScreen("setup");
+</script>
+</body>
+</html>
+
+
